@@ -3,7 +3,7 @@ import { applyDiminishingReturns } from "General/Engine/ItemUtilities"
 import Player from '../../Player/Player';
 import { processItem } from "Retail/Engine/SimCImport/SimCImportEngine"
 import { buildWepCombos } from "General/Engine/ItemUtilities"
-import { runTopGear } from "./TopGearEngine";
+import { runTopGear, applySoftDR, getGems } from "./TopGearEngine";
 import each from "jest-each";
 
 describe("Test Stat DRs", () => {
@@ -70,6 +70,27 @@ describe("Test Stat DRs", () => {
             expect(Math.round(stats.leech)).toBe(expectedResult);
 
     });
+
+});
+
+describe("Test Gems", () => {
+    const adjustedWeights = {
+        haste: 0.6,
+        mastery: 0.59,
+        crit: 0.57,
+        versatility: 0.5,
+        leech: 0.9, 
+    };
+    const setStats = {
+        haste: 900,
+        mastery: 400,
+        crit: 400,
+        versatility: 300,
+        leech: 120, 
+    }
+    const highestWeight = "Haste";
+    adjustedWeights = applySoftDR(adjustedWeights, setStats, "Holy Paladin")
+
 
 });
 

@@ -359,6 +359,54 @@ function dupObject(set) {
   return JSON.parse(JSON.stringify(set));
 }
 
+export function applySoftDR(adjustedWeights, setStats, spec) {
+  console.log("Pre DR: " + JSON.stringify(adjustedWeights));
+  // Apply soft DR formula to stats, as the more we get of any stat the weaker it becomes relative to our other stats.
+  adjustedWeights.haste = (adjustedWeights.haste + adjustedWeights.haste * (1 - (DR_CONST * setStats.haste) / STATPERONEPERCENT.Retail.HASTE)) / 2;
+  adjustedWeights.crit = (adjustedWeights.crit + adjustedWeights.crit * (1 - (DR_CONST * setStats.crit) / STATPERONEPERCENT.Retail.CRIT)) / 2;
+  adjustedWeights.versatility = (adjustedWeights.versatility + adjustedWeights.versatility * (1 - (DR_CONST * setStats.versatility) / STATPERONEPERCENT.Retail.VERSATILITY)) / 2;
+  adjustedWeights.mastery = (adjustedWeights.mastery + adjustedWeights.mastery * (1 - (DR_CONST * setStats.mastery) / STATPERONEPERCENT.Retail.MASTERYA[spec])) / 2;
+  adjustedWeights.leech = (adjustedWeights.leech + adjustedWeights.leech * (1 - (DR_CONSTLEECH * setStats.leech) / STATPERONEPERCENT.Retail.LEECH)) / 2;
+  console.log("Post DR: " + JSON.stringify(adjustedWeights));
+  return adjustedWeights;
+}
+
+export function getGems(socketCount, diminishedWeights, setStats, highestWeight, gemSetting = "Dynamic") {
+  const gem_stats = {};
+  const gemData = {"best": "", stats: {}}
+
+  // BFA Int gems are not currently competitive and aren't included in the formula.
+  // Movement speed gems are actually very good on most boss fights but are also excluded since they can't be put into a number.
+  const gemStat = 16; 
+
+  if (gemSetting === "Dynamic") {
+    // Get highest Dynamic weight
+    let max = "";
+    let maxValue = 0;
+  
+    for (var stat in diminishedWeights) {
+      if (diminishedWeights[stat] > maxValue && ["crit", "haste", "mastery", "versatility"].includes(stat)) {
+        max = stat;
+        maxValue = diminishedWeights[stat];
+      }
+    }
+  
+    gem_stats[max] += gemStat * socketCount;
+    gemData.stats = max;
+
+  }
+  else {
+    const highestWeight = highestWeight;
+    gem_stats[highestWeight] += gemStat * socketCount;
+    gemData.stats = highestWeight;
+  }
+  return gemData
+
+
+}
+
+
+
 /**
  * This is our evaluation function. It takes a complete set of gear and assigns it a score based on the sets stats, effects, legendaries and more.
  * @param {*} itemSet
@@ -408,11 +456,6 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings, castModel,
   // == Enchants and gems ==
   const enchants = enchantItems(bonus_stats, setStats.intellect, castModel);
 
-  // Sockets
-  const highestWeight = getHighestWeight(castModel);
-  bonus_stats[highestWeight] += 16 * builtSet.setSockets;
-  enchants["Gems"] = highestWeight;
-
   // Add together the sets base stats & any enchants or gems we've added.
   compileStats(setStats, bonus_stats);
   compileStats(gearStats, bonus_stats);
@@ -451,6 +494,27 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings, castModel,
   // The system doesn't actually allow you to add items of different armor types so this is always on.
   bonus_stats.intellect += (builtSet.setStats.intellect + enchantStats.intellect) * 0.05;
 
+  // == Diminishing Returns ==
+  // Here we'll apply diminishing returns. If we're a Disc Priest then we already took care of this during the ramp phase.
+  // DR on trinket procs and such are calculated in their effect formulas, so that we can DR them at their proc value, rather than their average value.
+  // Disc Note: Disc DR on base stats is already included in the ramp modules and doesn't need to be reapplied here.
+  if (!(player.spec === "Discipline Priest" && contentType === "Raid")) {
+    setStats = applyDiminishingReturns(setStats); // Apply Diminishing returns to our haul.
+
+    //adjusted_weights = applySoftDR(adjusted_weights, setStats, player.spec)
+// TODO, uncomment
+
+    //addBaseStats(setStats, player.spec); // Add our base stats, which are immune to DR. This includes our base 5% crit, and whatever base mastery our spec has.
+    setStats = compileStats(setStats, mergedEffectStats); // DR for effects are handled separately.
+    evalStats = setStats;
+  }
+
+  // Apply gems. Note that we already ran out DR formula, so the gem function must return a post DR value.
+  const highestWeight = getHighestWeight(castModel);
+  bonus_stats[highestWeight] += 16 * builtSet.setSockets;
+  enchants["Gems"] = highestWeight;
+
+
   // == Disc Specific Ramps ==
   // Further documentation is included in the DiscPriestRamps files.
   if (player.spec === "Discipline Priest" && contentType === "Raid") {
@@ -464,24 +528,7 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings, castModel,
     evalStats.hps = (setStats.hps || 0) + (mergedEffectStats.hps || 0);
   }
 
-  // == Diminishing Returns ==
-  // Here we'll apply diminishing returns. If we're a Disc Priest then we already took care of this during the ramp phase.
-  // DR on trinket procs and such are calculated in their effect formulas, so that we can DR them at their proc value, rather than their average value.
-  // Disc Note: Disc DR on base stats is already included in the ramp modules and doesn't need to be reapplied here.
-  if (!(player.spec === "Discipline Priest" && contentType === "Raid")) {
-    setStats = applyDiminishingReturns(setStats); // Apply Diminishing returns to our haul.
 
-    // Apply soft DR formula to stats, as the more we get of any stat the weaker it becomes relative to our other stats.
-    adjusted_weights.haste = (adjusted_weights.haste + adjusted_weights.haste * (1 - (DR_CONST * setStats.haste) / STATPERONEPERCENT.Retail.HASTE)) / 2;
-    adjusted_weights.crit = (adjusted_weights.crit + adjusted_weights.crit * (1 - (DR_CONST * setStats.crit) / STATPERONEPERCENT.Retail.CRIT)) / 2;
-    adjusted_weights.versatility = (adjusted_weights.versatility + adjusted_weights.versatility * (1 - (DR_CONST * setStats.versatility) / STATPERONEPERCENT.Retail.VERSATILITY)) / 2;
-    adjusted_weights.mastery = (adjusted_weights.mastery + adjusted_weights.mastery * (1 - (DR_CONST * setStats.mastery) / STATPERONEPERCENT.Retail.MASTERYA[player.spec])) / 2;
-    adjusted_weights.leech = (adjusted_weights.leech + adjusted_weights.leech * (1 - (DR_CONSTLEECH * setStats.leech) / STATPERONEPERCENT.Retail.LEECH)) / 2;
-
-    //addBaseStats(setStats, player.spec); // Add our base stats, which are immune to DR. This includes our base 5% crit, and whatever base mastery our spec has.
-    setStats = compileStats(setStats, mergedEffectStats); // DR for effects are handled separately.
-    evalStats = setStats;
-  }
 
   // == Scoring ==
   for (var stat in evalStats) {
