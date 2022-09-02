@@ -91,10 +91,10 @@ export default function GameTypeSwitch(props) {
       {/* ---------------------------------------------------------------------------------------------- */
       /*                            Wrath of the Lich King: Classic Game Type Toggle                           */
       /* ---------------------------------------------------------------------------------------------- */}
-      <ToggleButton className={classes.root} value="Classic" aria-label="classicLabel" disabled>
+      <ToggleButton className={classes.root} value="Classic" aria-label="classicLabel">
         <Tooltip title={t("GameTypeToggle.Classic")} arrow>
           <div style={{ display: "inline-flex" }}>
-            <img src={require("../../../Images/Logos/Logo_LichKingComingSoon.png").default} alt={t("Burning Crusade")} />
+            <img src={require("../../../Images/Logos/Logo_LichKing.png").default} alt={t("Burning Crusade")} />
           </div>
         </Tooltip>
       </ToggleButton>
