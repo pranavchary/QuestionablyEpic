@@ -81,6 +81,13 @@ export function getTrinketEffectClassic(effectName, player, contentType, itemLev
     }
     bonus_stats.mp5 = effect.value * effect.ppm * effect.duration / 60;
   }
+  else if (effectName === "Spark of Hope") { 
+    const effect = {
+      value: 42,
+      ppm: cpm,
+    }
+    bonus_stats.mp5 = effect.value * effect.ppm / 60 * 5;
+  }
   else if (effectName === "Soul Preserver") { 
     const effect = {
       value: 800 * 0.8, // 800 is the maximum amount of mana the trinket can give. Spec-by-spec breakdowns probably useful.

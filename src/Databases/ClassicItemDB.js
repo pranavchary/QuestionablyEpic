@@ -115154,6 +115154,7 @@ export const ClassicItemDB = [
         "itemSubClass": 0,
         "itemLevel": 219,
         "quality": 4,
+        "phase": 2,
         "slot": "Trinket",
         "effect": {
             "type": "trinket",
