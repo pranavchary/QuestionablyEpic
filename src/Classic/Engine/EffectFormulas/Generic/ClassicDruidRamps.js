@@ -268,6 +268,7 @@ export const genSpell = (state, spells) => {
 
     const usableSpells = [...apl].filter(spell => canCastSpell(state, spells, spell));
 
+    /*
     if (apl.includes("Wild Growth") && !(usableSpells.includes("Wild Growth"))) {
         if ((spells["Wild Growth"][0].activeCooldown - state.t) < (0.5 / getHaste(state.currentStats))) {
             // Wild Growth is nearly up soon. Hold CD.
@@ -275,6 +276,7 @@ export const genSpell = (state, spells) => {
             return "Rest";
         }
     }
+    */
 
     /*
     if (state.holyPower >= 3) {
@@ -422,10 +424,11 @@ const runSpell = (fullSpell, state, spellName, evokerSpells) => {
  */
 export const runCastSequence = (sequence, stats, settings = {}, talents = {}) => {
     //console.log("Running cast sequence");
-    let state = {t: 0.01, report: [], activeBuffs: [], healingDone: {}, damageDone: {}, manaSpent: 0, settings: settings, talents: talents, reporting: false};
+    let state = {t: 0.01, report: [], activeBuffs: [], healingDone: {}, damageDone: {}, manaSpent: {}, settings: settings, talents: talents, reporting: false};
 
-    const sequenceLength = 900; // The length of any given sequence. Note that each ramp is calculated separately and then summed so this only has to cover a single ramp.
+    const sequenceLength = 300; // The length of any given sequence. Note that each ramp is calculated separately and then summed so this only has to cover a single ramp.
     const seqType = "Auto" // Auto / Manual.
+    const percTimeHealing = 0.7;
     let nextSpell = 0;
     const startTime = performance.now();
     // Note that any talents that permanently modify spells will be done so in this loadoutEffects function. 
@@ -516,7 +519,7 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
             // We'll iterate through the different effects the spell has.
             // Smite for example would just trigger damage (and resulting atonement healing), whereas something like Mind Blast would trigger two effects (damage,
             // and the absorb effect).
-            state.manaSpent += fullSpell[0].cost || 0;
+            state.manaSpent[spellName] = (state.manaSpent[spellName] || 0) + (fullSpell[0].cost || 0);
 
             runSpell(fullSpell, state, spellName, evokerSpells);
 
@@ -570,14 +573,18 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
     // Add up our healing values (including atonement) and return it.
     const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
     //state.activeBuffs = [];
+    const oneMana = (state.healingDone['Rejuvenation(hot)'] / state.manaSpent['Rejuvenation']);
     state.totalDamage = Object.keys(state.damageDone).length > 0 ? Math.round(sumValues(state.damageDone)) : 0;
-    state.totalHealing = Object.keys(state.healingDone).length > 0 ? Math.round(sumValues(state.healingDone)) : 0;
+    state.totalHealing = Object.keys(state.healingDone).length > 0 ? Math.round(sumValues(state.healingDone)) * percTimeHealing : 0;
+    state.totalManaSpent = Object.keys(state.manaSpent).length > 0 ? Math.round(sumValues(state.manaSpent)) * percTimeHealing : 0;
     state.talents = {};
     state.hps = (state.totalHealing / sequenceLength);
     state.dps = (state.totalDamage / sequenceLength);
-    state.hpm = (state.totalHealing / state.manaSpent) || 0;
+    state.hpm = (state.totalHealing / state.totalManaSpent) || 0;
+    state.hpsAdj = (state.totalHealing + Math.min(0, manaAvailable - state.totalManaSpent) * oneMana) / sequenceLength;
     state.activeBuffs = []
     state.report = [];
+    console.log(Math.min(0, manaAvailable - state.totalManaSpent));
 
     const endTime = performance.now();
     //console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)

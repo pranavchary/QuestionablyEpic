@@ -318,6 +318,8 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
     }
     bonus_stats = mergeBonusStats(effectStats);
 
+    // Build Dynamic Weights
+
     for (var stat in setStats) {
       if (stat === "hps") {
         hardScore += setStats[stat];

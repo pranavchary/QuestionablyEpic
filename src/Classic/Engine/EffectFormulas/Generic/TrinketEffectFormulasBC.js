@@ -16,7 +16,7 @@ export function getTrinketEffectClassic(effectName, player, contentType, itemLev
   const activeTrinket = effectName;
 
   const cpm = 24;
-  const gcd = 1.5; // TODO
+  const gcd = 1.2; // TODO
 
 
 

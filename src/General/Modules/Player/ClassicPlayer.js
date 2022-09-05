@@ -38,13 +38,13 @@ class ClassicPlayer extends Player {
                 Raid: {
                     intellect: 0.9,
                     spellpower: 2.28,
-                    spelldamage: 2.1,
+                    spelldamage: 2.28,
                     hps: 1,
-                    mp5: 2.3,
+                    mp5: 3.64,
                     spirit: 0.7,
                     crit: 0.06,
                     stamina: 0.15,
-                    haste: 1.54,
+                    haste: 2,
                     
                 },
                 Dungeon: {

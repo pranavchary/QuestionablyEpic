@@ -117,10 +117,10 @@ describe("Evang Cast Sequence", () => {
 
 
         const activeStats = {
-            intellect: 850,
-            haste: 350,
+            intellect: 1000,
+            haste: 600,
             crit: 600,
-            spirit: 600 / 1.15,
+            spirit: 8500 / 1.15,
             stamina: 2800,
             spellpower: 2500,
             mp5: 200,
@@ -140,14 +140,17 @@ describe("Evang Cast Sequence", () => {
 
         const spellpower = runCastSequence(seq, {...activeStats, spellpower: activeStats.spellpower + 10}, settings, talents)
         const hasteS = runCastSequence(seq, {...activeStats, haste: activeStats.haste + 100}, settings, talents)
+        const mp5 = runCastSequence(seq, {...activeStats, haste: activeStats.mp5 + 100}, settings, talents)
 
         console.log(baseline);
 
 
         console.log(`Healing Done over ${iter} iterations: ` + baseline.totalHealing / iter + " at cost: " + baseline.manaSpent / iter);
-        console.log(`Spell Power: ` + (spellpower.hps - baseline.hps)/10);
-        console.log(`Haste: ` + (hasteS.hps - baseline.hps)/100);
+        console.log(`Spell Power: ` + (spellpower.hpsAdj - baseline.hpsAdj)/10);
+        console.log(`Haste: ` + (hasteS.hpsAdj - baseline.hpsAdj)/100);
+        console.log(`MP5: ` + (mp5.hpsAdj - baseline.hpsAdj)/100);
         
+        //console.log(baseline.healingDone['Rejuvenation(hot)'] / baseline.manaSpent['Rejuvenation'])
         
 
         /*
