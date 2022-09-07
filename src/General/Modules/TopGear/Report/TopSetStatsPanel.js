@@ -25,12 +25,12 @@ export default function TopSetStatsPanel(props) {
           ["Bonus DPS", statList.dps],
         ]
       : [
-          ["Bonus Healing", statList.bonushealing],
+          ["Spellpower", statList.spellpower],
           ["Intellect", statList.intellect],
+          ["Haste", statList.haste / STATPERONEPERCENT.Classic.HASTE],
           ["Spirit", statList.spirit],
+          ["Crit", statList.crit / STATPERONEPERCENT.Classic.CRIT + statList.intellect / 79.4],
           ["MP5", statList.mp5],
-          ["Crit", statList.spellcrit / STATPERONEPERCENT.Classic.CRIT + statList.intellect / 79.4],
-          ["Haste", statList.spellhaste / STATPERONEPERCENT.Classic.HASTE],
         ];
 
   /* ----------------------- Returns a formatted string for the stat panel. ----------------------- */

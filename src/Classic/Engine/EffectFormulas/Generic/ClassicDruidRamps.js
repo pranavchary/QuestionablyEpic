@@ -27,22 +27,6 @@ const LKCONSTANTS = {
 
 }
 
-const triggerEssenceBurst = (state) => {
-    if (state.talents.exhiliratingBurst) {
-        // If we're talented into Exhil Burst then also add that buff.
-        // If we already have an Exhilirating Burst active then we'll just refresh it's duration instead.
-        // If not, we'll create a new buff.
-        const activeBuff = state.activeBuffs.filter(function (buff) {return buff.name === "Exhilirating Burst"});
-        const exhilBurst = EVOKERCONSTANTS.exhilBurstBuff;
-        if (activeBuff.length > 0) activeBuff.expiration = (state.t + exhilBurst.buffDuration);
-        else {
-            exhilBurst.expiration = (state.t + exhilBurst.buffDuration);
-            addReport(state, `Adding buff: Essence Burst`);
-            state.activeBuffs.push(exhilBurst);
-        }
-    }
-}
-
 
 /**
  * This function handles all of our effects that might change our spell database before the ramps begin.
@@ -171,12 +155,37 @@ const triggerEssenceBurst = (state) => {
     stats.spirit *= 1.1;
     stats.intellect *= 1.1;
 
+    // Wrath of Air
+    state.activeBuffs.push({
+        type: "buff",
+        buffType: "statsMult",
+        stat: 'haste',
+        value: 1.05,
+        expiration: 999,
+    })
+    // Moonkin Aura / Ret Paladin
+    state.activeBuffs.push({
+        type: "buff",
+        buffType: "statsMult",
+        stat: 'haste',
+        value: 1.03,
+        expiration: 999,
+    })
+
 
     // ==== Tier Sets ====
 
 
-
     return adjSpells;
+}
+
+// Converts a stat array to base components of spellpower, crit, haste and MP5.
+// Intellect is converted to MP5 & Crit
+// Spirit is converted to MP5.
+export const convertStats = (stats, fightDuration) => {
+    stats.mp5 += stats.intellect // Int + Spirit to MP5 formula.
+    stats.mp5 += stats.intellect * 15 / fightDuration * 5 // Additional base mana given by intellect. 
+
 }
 
 
@@ -220,7 +229,9 @@ export const runHeal = (state, spell, spellName, compile = true) => {
 
     const healingMult = getHealingMult(state, state.t, spellName, state.talents); 
     const targetMult = (('tags' in spell && spell.tags.includes('sqrt')) ? getSqrt(spell.targets) : spell.targets) || 1;
-    const healingVal = getSpellRaw(spell, currentStats, LKCONSTANTS) * (1 - spell.expectedOverheal) * healingMult * targetMult;
+    const hotMult = 'buffDuration' in spell ? (spell.buffDuration / spell.tickRate) : 1;
+    const healingVal = getSpellRaw(spell, currentStats, LKCONSTANTS) * (1 - spell.expectedOverheal) * healingMult * targetMult * hotMult;
+    
     
     //if (cloudburstActive) cloudburstHealing = (healingVal / (1 - spell.expectedOverheal)) * EVOKERCONSTANTS.CBT.transferRate * (1 - EVOKERCONSTANTS.CBT.expectedOverhealing);
     //console.log(spellName + ": " + healingVal + ". t:" + targetMult + ". HealingM: " + healingMult);
@@ -254,13 +265,6 @@ const canCastSpell = (state, spellDB, spellName) => {
     return cooldownReq && miscReq;
 }
 
-const getSpellHPM = (state, spellDB, spellName) => {
-    const spell = spellDB[spellName][0];
-    const spellHealing = runHeal(state, spell, spellName, false)
-
-    return spellHealing / spell.cost || 0;
-}
-
 
 
 export const genSpell = (state, spells) => {
@@ -278,33 +282,11 @@ export const genSpell = (state, spells) => {
     }
     */
 
-    /*
-    if (state.holyPower >= 3) {
-        spellName = "Light of Dawn";
-    }
-    else {
-        let possibleCasts = [{name: "Holy Shock", score: 0}, {name: "Flash of Light", score: 0}]
-
-        possibleCasts.forEach(spellData => {
-            if (canCastSpell(state, spells, spellData['name'])) {
-                spellData.score = getSpellHPM(state, spells, spellData['name'])
-            }
-            else {
-                spellData.score = -1;
-            }
-        });
-        possibleCasts.sort((a, b) => (a.score < b.score ? 1 : -1));
-        console.log(possibleCasts);
-        spellName = possibleCasts[0].name;
-    }
-    console.log("Gen: " + spellName + "|");
-    */
     return usableSpells[0];
 
 }
 
-
-const apl = ["Wild Growth", "Rejuvenation"]
+const apl = ["Rejuvenation", "Wild Growth"]
 
 const runSpell = (fullSpell, state, spellName, evokerSpells) => {
     fullSpell.forEach(spell => {
@@ -368,13 +350,6 @@ const runSpell = (fullSpell, state, spellName, evokerSpells) => {
                     if (spell.canStack === false || buffStacks === 0) {
                         const buff = {name: spell.name, expiration: (state.t  + spell.buffDuration) + (spell.castTime || 0), buffType: spell.buffType, value: spell.value, stacks: 1, canStack: spell.canStack}
                     
-                        if (spell.name === "Cycle of Life") {
-
-                            buff.runEndFunc = true;
-                            buff.runFunc = spell.runFunc;
-                            buff.canPartialTick = true;
-
-                        }
                         //if (spell.name === "Temporal Compression") console.log(buff);
                         state.activeBuffs.push(buff);
                     }
@@ -386,13 +361,7 @@ const runSpell = (fullSpell, state, spellName, evokerSpells) => {
 
                         
                         if (buff.canStack) buff.stacks += 1;
-                    }
-
-                    if (spell.name === "Essence Burst") {
-                        triggerEssenceBurst(state);
-                    }
-
-                    
+                    }   
 
                 }     
                 else {
@@ -412,6 +381,16 @@ const runSpell = (fullSpell, state, spellName, evokerSpells) => {
     }); 
 }
 
+const getDuration = (seq, db, hastePerc) => {
+    let duration = 0;
+    seq.forEach(spellName => {
+        const castTime = db[spellName].castTime;
+        duration += Math.max(1, castTime > 0 ? castTime / hastePerc : 1.5 / hastePerc);
+    })
+
+    return duration;
+}
+
 /**
  * Run a full cast sequence. This is where most of the work happens. It runs through a short ramp cycle in order to compare the impact of different trinkets, soulbinds, stat loadouts,
  * talent configurations and more. Any effects missing can be easily included where necessary or desired.
@@ -422,20 +401,22 @@ const runSpell = (fullSpell, state, spellName, evokerSpells) => {
  * @param {object} conduits Any conduits we want to include. The conduits object is made up of {ConduitName: ConduitLevel} pairs where the conduit level is an item level rather than a rank.
  * @returns The expected healing of the full ramp.
  */
-export const runCastSequence = (sequence, stats, settings = {}, talents = {}) => {
+export const runCastSequence = (spec, stats, settings = {}, talents = {}) => {
     //console.log("Running cast sequence");
     let state = {t: 0.01, report: [], activeBuffs: [], healingDone: {}, damageDone: {}, manaSpent: {}, settings: settings, talents: talents, reporting: false};
 
     const sequenceLength = 300; // The length of any given sequence. Note that each ramp is calculated separately and then summed so this only has to cover a single ramp.
-    const seqType = "Auto" // Auto / Manual.
-    const percTimeHealing = 0.7;
+    const seqType = "Manual" // Auto / Manual.
+    const seqPackage = ["Wild Growth", "Rejuvenation", "Rejuvenation", "Rejuvenation", "Rejuvenation"]
+    
+    const percTimeHealing = 0.8;
     let nextSpell = 0;
     const startTime = performance.now();
     // Note that any talents that permanently modify spells will be done so in this loadoutEffects function. 
     // Ideally we'll cover as much as we can in here.
-    const evokerSpells = applyLoadoutEffects(deepCopyFunction(DRUIDLKSPELLDB), settings, talents, state, stats);
+    const classicSpells = applyLoadoutEffects(deepCopyFunction(DRUIDLKSPELLDB), settings, talents, state, stats);
     
-    const seq = [...sequence];
+    const seq = [...seqPackage];
 
     // Calculate Mana over the sequence length.
     const percRegen = 0.5; // Move this
@@ -443,12 +424,13 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
     const manaPool = 3496 + (stats.intellect - 20) * 15 + 20 // The first 20 points of intellect are worth 1 mana. After that they are worth 15 mana each.
     const innervateMana = Math.ceil(sequenceLength/60/3) * 3496 * 2.25 // 2 uses of 225% base mana.
     const manaAvailable = (manaPool + innervateMana + regenPerFive * (sequenceLength / 5))
+    const additionalMana = (regenPerFive * (sequenceLength / 5));
 
     state.manaAvailable = manaAvailable;
 
-    for (var t = 0; state.t < sequenceLength; state.t += 0.01) {
+    let packageDuration = getDuration(seqPackage, classicSpells, getHaste(getCurrentStats(stats, state.activeBuffs)));
 
-        
+    for (var t = 0; state.t < sequenceLength; state.t += 0.01) {
         // ---- Heal over time and Damage over time effects ----
         // When we add buffs, we'll also attach a spell to them. The spell should have coefficient information, secondary scaling and so on. 
         // When it's time for a HoT or DoT to tick (state.t > buff.nextTick) we'll run the attached spell.
@@ -512,16 +494,16 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
 
             let spellName = "";
             if (seqType === "Manual") spellName = seq.shift();
-            else spellName = genSpell(state, evokerSpells);
+            else spellName = genSpell(state, classicSpells);
 
-            const fullSpell = evokerSpells[spellName];
+            const fullSpell = classicSpells[spellName];
 
             // We'll iterate through the different effects the spell has.
             // Smite for example would just trigger damage (and resulting atonement healing), whereas something like Mind Blast would trigger two effects (damage,
             // and the absorb effect).
             state.manaSpent[spellName] = (state.manaSpent[spellName] || 0) + (fullSpell[0].cost || 0);
 
-            runSpell(fullSpell, state, spellName, evokerSpells);
+            runSpell(fullSpell, state, spellName, classicSpells);
 
             // Check if Echo
             // If we have the Echo buff active, and our current cast is Echo compatible (this will probably change through Alpha) then:
@@ -535,8 +517,8 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
                 for (let j = 0; j < echoNum; j++) {
                     // Cast the Echo'd version of our spell j times.
                     
-                    const echoSpell = evokerSpells[spellName + "(Echo)"]
-                    runSpell(echoSpell, state, spellName + "(Echo)", evokerSpells)
+                    const echoSpell = classicSpells[spellName + "(Echo)"]
+                    runSpell(echoSpell, state, spellName + "(Echo)", classicSpells)
   
                 }
 
@@ -565,7 +547,12 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
                 else nextSpell += (castTime / getHaste(currentStats));
             }
             else console.log("CAST TIME ERROR. Spell: " + spellName);
-            
+
+
+        }
+        // Get the "real time" of the sequence's casts
+        if (seq.length === 0) {
+            break;
         }
     }
 
@@ -573,18 +560,20 @@ export const runCastSequence = (sequence, stats, settings = {}, talents = {}) =>
     // Add up our healing values (including atonement) and return it.
     const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
     //state.activeBuffs = [];
-    const oneMana = (state.healingDone['Rejuvenation(hot)'] / state.manaSpent['Rejuvenation']);
+    const packageCount = sequenceLength / packageDuration;
+    const oneMana = (state.healingDone['Rejuvenation']  / state.manaSpent['Rejuvenation']) //* getHaste(state.currentStats)) ;
     state.totalDamage = Object.keys(state.damageDone).length > 0 ? Math.round(sumValues(state.damageDone)) : 0;
-    state.totalHealing = Object.keys(state.healingDone).length > 0 ? Math.round(sumValues(state.healingDone)) * percTimeHealing : 0;
-    state.totalManaSpent = Object.keys(state.manaSpent).length > 0 ? Math.round(sumValues(state.manaSpent)) * percTimeHealing : 0;
+    state.totalHealing = Object.keys(state.healingDone).length > 0 ? Math.round(sumValues(state.healingDone)) * packageCount * percTimeHealing : 0;
+    state.totalManaSpent = Object.keys(state.manaSpent).length > 0 ? Math.round(sumValues(state.manaSpent)) * packageCount * percTimeHealing : 0;
     state.talents = {};
     state.hps = (state.totalHealing / sequenceLength);
     state.dps = (state.totalDamage / sequenceLength);
     state.hpm = (state.totalHealing / state.totalManaSpent) || 0;
     state.hpsAdj = (state.totalHealing + Math.min(0, manaAvailable - state.totalManaSpent) * oneMana) / sequenceLength;
+    //state.hpsAdj = state.hps + oneMana * additionalMana / sequenceLength;
+
     state.activeBuffs = []
     state.report = [];
-    console.log(Math.min(0, manaAvailable - state.totalManaSpent));
 
     const endTime = performance.now();
     //console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)

@@ -12,7 +12,7 @@ import CastModel from "../../Player/CastModel";
 import { getEffectValue } from "../../../../Retail/Engine/EffectFormulas/EffectEngine"
 import { compileStats, buildDifferential, pruneItems, sumScore, deepCopyFunction } from "./TopGearEngineShared"
 import { getItemSet } from "Classic/Databases/ItemSetsDB"
-
+import { runCastSequence } from "../../../../Classic/Engine/EffectFormulas/Generic/ClassicDruidRamps";
 
 // Most of our sets will fall into a bucket where totalling the individual stats is enough to tell us they aren't viable. By slicing these out in a preliminary phase,
 // we can run our full algorithm on far fewer items. The net benefit to the player is being able to include more items, with a quicker return.
@@ -276,7 +276,9 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
       talent_stats.spirit = (setStats.spirit) * 0.03;
     }
 
-    // This can be properly formalized.
+    // These should be moved into models.
+
+    /*
     if (player.getSpec() === "Holy Paladin Classic") {
       talent_stats.intellect = setStats.intellect * 0.1;
       talent_stats.spellpower = (setStats.intellect + talent_stats.intellect) * 0.2;
@@ -307,7 +309,7 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
     }
 
     compileStats(setStats, talent_stats);
-
+    */
     // -- Effects --
     let effectStats = [];
     effectStats.push(bonus_stats);
@@ -318,16 +320,30 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
     }
     bonus_stats = mergeBonusStats(effectStats);
 
-    // Build Dynamic Weights
+
+
+
+    // Split weights into MP5 and throughput stats (spellpower, crit, haste).
+    // Spirit / int / additional mana are all converted to MP5.
+    // Model returns HPS.
+    
+    // MP5 is converted to HPS on a sliding scale.
+    // Raw HPS from effects is just added as-is.
+    // Net result is a converted HPS. 
+    const setRamp = runCastSequence(player.spec, setStats, {}, {})
+    //report.ramp = setRamp;
+    setStats.hps += setRamp.hps;
+    console.log(JSON.stringify(setRamp));
 
     for (var stat in setStats) {
       if (stat === "hps") {
         hardScore += setStats[stat];
         //console.log("Adding HPS score of " + setStats[stat]);
-      } else if (stat === "dps") {
-        continue;
-      } else {
+      } else if (stat === "mp5") {
         hardScore += setStats[stat] * adjusted_weights[stat];
+        console.log(setStats[stat] + stat + " (Weight: " + player.statWeights["Raid"][stat] + "): " + (setStats[stat] * player.statWeights["Raid"][stat]));
+      } else {
+        //hardScore += setStats[stat] * adjusted_weights[stat];
         //console.log("Adding " + (setStats[stat] * player.statWeights["Raid"][stat]) + " to hardscore for stat " + stat + " with stat weight: " + player.statWeights["Raid"][stat]);
       }
     }
@@ -338,6 +354,7 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
     builtSet.hardScore = Math.round(1000 * hardScore) / 1000;
     builtSet.setStats = setStats;
     builtSet.enchantBreakdown = enchants;
+
     return builtSet; // Temp
   }
 
@@ -355,10 +372,10 @@ function evalSet(itemSet, player, contentType, baseHPS, userSettings) {
         bonushealing: mergeStat(stats, 'bonushealing'),
         spelldamage: mergeStat(stats, 'spelldamage'),
         spirit: mergeStat(stats, 'spirit'),
-        spellcrit: mergeStat(stats, 'spellcrit'),
+        crit: mergeStat(stats, 'crit'),
         stamina: mergeStat(stats, 'stamina'),
         mp5: mergeStat(stats, 'mp5'),
-        spellhaste: mergeStat(stats, 'spellhaste'),
+        haste: mergeStat(stats, 'haste'),
       }
   
     return val;

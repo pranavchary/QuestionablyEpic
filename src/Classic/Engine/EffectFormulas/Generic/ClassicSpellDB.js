@@ -9,22 +9,22 @@ export const DRUIDLKSPELLDB = {
     }],
     "Rejuvenation": [{
         castTime: 0,
-        type: "buff",
+        type: "heal",
         name: "Rejuvenation",
         buffType: "heal",
         coeff: 0.376, // 
         cost: 18,
         flatHeal: 338,
         tickRate: 3,
-        buffDuration: 15,
-        expectedOverheal: 0.3,
+        buffDuration: 18,
+        expectedOverheal: 0.5,
         secondaries: [], // + Haste
         canPartialTick: false,
         hastedTicks: false,
     }],
     "Wild Growth": [{
         castTime: 0,
-        type: "buff",
+        type: "heal",
         name: "Wild Growth",
         buffType: "heal",
         coeff: 0.115, // 
@@ -35,7 +35,7 @@ export const DRUIDLKSPELLDB = {
         cost: 23,
         targets: 6,
         buffDuration: 7,
-        expectedOverheal: 0.3,
+        expectedOverheal: 0.6,
         secondaries: [], // + Haste
         canPartialTick: false,
         hastedTicks: false,

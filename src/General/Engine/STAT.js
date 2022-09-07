@@ -63,7 +63,7 @@ export const STATPERONEPERCENT = {
     },
   },
   Classic: {
-    HASTE: 15.8,
+    HASTE: 32.79,
     CRIT: 22.1, // Keep in mind Spell and melee crit are separated, but both cost 22.1 per 1% gain.
     MELEEHIT: 15.8, // Not used for healing specifically, but we'll store it just in case.
     SPELLHIT: 12.6, // Not used for healing specifically, but we'll store it just in case.
