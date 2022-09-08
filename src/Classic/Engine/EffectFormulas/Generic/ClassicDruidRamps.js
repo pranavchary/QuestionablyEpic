@@ -183,9 +183,13 @@ const LKCONSTANTS = {
 // Intellect is converted to MP5 & Crit
 // Spirit is converted to MP5.
 export const convertStats = (stats, fightDuration) => {
-    stats.mp5 += stats.intellect // Int + Spirit to MP5 formula.
-    stats.mp5 += stats.intellect * 15 / fightDuration * 5 // Additional base mana given by intellect. 
-
+    const percRegen = 0.5;
+    const regenNerf = 0.6; // This was a late WotLK change that reduced the amount of regen from spirit / intellect.
+    stats.mp5 += ((0.001 + (stats.spirit * Math.sqrt(stats.intellect) * 0.005575)) * 5 * regenNerf * percRegen);
+    stats.mp5 += ((stats.intellect - 20) * 15 + 20) / fightDuration * 5 // Additional base mana given by intellect. 
+    stats.mp5 += (Math.ceil(fightDuration/60/3) * 3496 * 2.25) / fightDuration * 5 // Innervate
+    
+    console.log(stats.mp5);
 }
 
 
@@ -419,14 +423,17 @@ export const runCastSequence = (spec, stats, settings = {}, talents = {}) => {
     const seq = [...seqPackage];
 
     // Calculate Mana over the sequence length.
-    const percRegen = 0.5; // Move this
+    /*const percRegen = 0.5; // Move this
     const regenPerFive = ((0.001 + (stats.spirit * Math.sqrt(stats.intellect) * 0.005575)) * 5 * 0.6 * percRegen) + stats.mp5;
+    
     const manaPool = 3496 + (stats.intellect - 20) * 15 + 20 // The first 20 points of intellect are worth 1 mana. After that they are worth 15 mana each.
     const innervateMana = Math.ceil(sequenceLength/60/3) * 3496 * 2.25 // 2 uses of 225% base mana.
     const manaAvailable = (manaPool + innervateMana + regenPerFive * (sequenceLength / 5))
-    const additionalMana = (regenPerFive * (sequenceLength / 5));
+    const additionalMana = (regenPerFive * (sequenceLength / 5)); */
 
-    state.manaAvailable = manaAvailable;
+    convertStats(stats, sequenceLength);
+
+    //state.manaAvailable = manaAvailable;
 
     let packageDuration = getDuration(seqPackage, classicSpells, getHaste(getCurrentStats(stats, state.activeBuffs)));
 
@@ -569,7 +576,7 @@ export const runCastSequence = (spec, stats, settings = {}, talents = {}) => {
     state.hps = (state.totalHealing / sequenceLength);
     state.dps = (state.totalDamage / sequenceLength);
     state.hpm = (state.totalHealing / state.totalManaSpent) || 0;
-    state.hpsAdj = (state.totalHealing + Math.min(0, manaAvailable - state.totalManaSpent) * oneMana) / sequenceLength;
+    //state.hpsAdj = (state.totalHealing + Math.min(0, manaAvailable - state.totalManaSpent) * oneMana) / sequenceLength;
     //state.hpsAdj = state.hps + oneMana * additionalMana / sequenceLength;
 
     state.activeBuffs = []
