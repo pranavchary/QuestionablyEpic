@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import CardActionArea from "@mui/material/CardActionArea";
 import { Difference } from "@mui/icons-material";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import ItemDialog from "../DeepDive/DeepDiveDialog";
 
 const useStyles = makeStyles({
   root: {
@@ -111,6 +112,7 @@ export default function ItemCard(props) {
                 </Tooltip>
               ) : null}
             </Grid>
+            <ItemDialog item={item} />
           </Grid>
         </div>
         <Card

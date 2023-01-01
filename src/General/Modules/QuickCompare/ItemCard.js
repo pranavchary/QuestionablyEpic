@@ -8,6 +8,7 @@ import socketImage from "../../../Images/Resources/EmptySocket.png";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Difference } from "@mui/icons-material";
+import ItemDialog from "../DeepDive/DeepDiveDialog";
 
 const useStyles = makeStyles({
   root: {
@@ -50,6 +51,7 @@ export default function ItemCard(props) {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   const item = props.item;
+  console.log(item);
   const statString = buildStatString(item.stats, item.effect, currentLanguage);
   const isLegendary = "effect" in item && (item.effect.type === "spec legendary" || item.effect.type === "unity");
   const isCatalystItem = item.isCatalystItem;
@@ -67,13 +69,13 @@ export default function ItemCard(props) {
   let socket = [];
   if (item.socket) {
     for (let i = 0; i < item.socket; i++) {
-      socket.push (
-        <div style={{ marginRight: 4, display: "inline"}}>
+      socket.push(
+        <div style={{ marginRight: 4, display: "inline" }}>
           <img src={socketImage} width={15} height={15} alt="Socket" />
-        </div>
+        </div>,
       );
     }
-    socket = <div style={{ verticalAlign: "middle"}}>{socket}</div>;
+    socket = <div style={{ verticalAlign: "middle" }}>{socket}</div>;
   }
   /*
   const socket = item.socket ? (
@@ -219,6 +221,8 @@ export default function ItemCard(props) {
                 </Tooltip>
               ) : null}
             </Grid>
+
+            <ItemDialog item={item} />
           </Grid>
         </div>
         <Card
