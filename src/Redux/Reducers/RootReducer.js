@@ -24,7 +24,8 @@ const initialState = {
                     "alchStonePotions": {value: 1, options: [0, 1, 2], category: "trinkets"},
                     "enchantItems": {value: true, options: [true, false], category: "topGear"},
                     "catalystLimit": {value: 1, options: [1, 2, 3], category: "topGear"},
-                    "upgradeFinderMetric": {value: "Show % Upgrade", options: ["Show % Upgrade", "Show HPS"], category: "upgradeFinder"}},// "whisperingIncarnateIcon": "Alone", "enemyTargets": 1},
+                    "upgradeFinderMetric": {value: "Show % Upgrade", options: ["Show % Upgrade", "Show HPS"], category: "upgradeFinder"},// "whisperingIncarnateIcon": "Alone", "enemyTargets": 1},
+                    "dungeonTargets": {value: 3.5, options: [1, 2, 3, 3.5, 4, 5], category: "topGear"}},
   patronStatus: "Standard" // Currently not used. Will be once we evolve app into a functional component.
 };
 if (initialState.gameType === "BurningCrusade") initialState.gameType = "Classic";

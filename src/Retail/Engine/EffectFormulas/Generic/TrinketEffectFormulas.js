@@ -3,6 +3,7 @@ import { trinket_data } from "./ShadowlandsTrinketData";
 import { raidTrinketData } from "./TrinketData";
 import { dungeonTrinketData } from "./DungeonTrinketData";
 import { otherTrinketData } from "./OtherTrinketData";
+import { dpsTrinketData } from "./DPSTrinketData";
 import { useSelector } from "react-redux";
 import { getAdjustedHolyShock } from "../Paladin/PaladinMiscFormulas"
 import { getMasteryAddition } from "../Monk/MistweaverMiscFormulas"
@@ -57,7 +58,7 @@ export function getTrinketEffect(effectName, player, castModel, contentType, ite
   let additionalData = {contentType: contentType, settings: playerSettings, setStats: setStats, castModel: castModel, player: player};
 
   /* -------- Trinket Data holds a trinkets actual power values. Formulas here, data there. ------- */
-  const trinketData = raidTrinketData.concat(dungeonTrinketData, otherTrinketData/*, timewalkTrinketData*/)
+  const trinketData = raidTrinketData.concat(dungeonTrinketData, otherTrinketData, dpsTrinketData, /*, timewalkTrinketData*/)
   let activeTrinket = trinketData.find((trinket) => trinket.name === effectName);
 
 
@@ -68,6 +69,13 @@ export function getTrinketEffect(effectName, player, castModel, contentType, ite
     return {};
   }
 
+
+  /**
+   * The below is old Shadowlands effect formulas. Back then code was split into a "data" and "formula" file. 
+   * In Dragonflight each trinket is able to calculate its own value which is much tidier and means you don't have to reference more than one place.
+   * The code is left for reference but might be removed at a later date.
+   * 
+   */
   if (activeTrinket === undefined) {
     /* ---------------------------------------------------------------------------------------------- */
     /*                                         Error Handling                                         */
