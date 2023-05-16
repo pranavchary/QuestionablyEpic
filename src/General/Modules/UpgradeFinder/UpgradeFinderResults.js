@@ -30,6 +30,8 @@ export default function UpgradeFinderResults(props) {
   const { t } = useTranslation();
   const result = props.itemSelection;
   console.log(result);
+  console.log(JSON.stringify(result))
+  console.log(JSON.stringify(result.differentials));
   const itemList = result.itemSet;
   const itemDifferentials = result.differentials;
   console.log("Total Item Count: " + itemDifferentials.length);
