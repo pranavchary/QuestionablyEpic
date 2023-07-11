@@ -1,4 +1,19 @@
-export const raidDB = [
+interface Raid {
+  ID: number;
+  raidID: number;
+  name: {
+    en: string;
+    fr: string;
+    de: string;
+    ru: string;
+    ch: string;
+    [key: string]: string;  // This is the index signature
+  };
+  expansion: number;
+  icon: string;
+}
+
+export const raidDB: Raid[] = [
   {
     ID: 2522,
     raidID: 1200,
@@ -27,7 +42,21 @@ export const raidDB = [
   },
 ];
 
-export const bossList = [
+interface Boss {
+  DungeonEncounterID: number;
+  ID: number;
+  name: {
+    en: string;
+    fr: string;
+    de: string;
+    ru: string;
+    ch: string;
+  };
+  zoneID: number;
+  icon: string;
+}
+
+export const bossList: Boss[] = [
   /* ---------------------------------------------------------------------------------------------- */
   /*                                     Vault of the Incarnates                                    */
   /* ---------------------------------------------------------------------------------------------- */
@@ -152,7 +181,7 @@ export const bossList = [
     ID: 2522,
     name: {
       en: "Kazzara, the Hellforged",
-      cn: "狱铸者卡扎拉",
+      ch: "狱铸者卡扎拉",
       de: "Kazzara, die Höllengeschmiedete",
       fr: "Kazzara, née des enfers",
       ru: "Каззара из Преисподней",
@@ -165,7 +194,7 @@ export const bossList = [
     ID: 2529,
     name: {
       en: "The Amalgamation Chamber",
-      cn: "融合体密室",
+      ch: "融合体密室",
       de: "Die Verschmelzungskammer",
       fr: "Chambre de fusion",
       ru: "Чертог слияния",
@@ -178,7 +207,7 @@ export const bossList = [
     ID: 2530,
     name: {
       en: "The Forgotten Experiments",
-      cn: "被遗忘的实验体",
+      ch: "被遗忘的实验体",
       de: "Die vergessenen Experimente",
       fr: "Les expériences oubliées",
       ru: "Забытые эксперименты",
@@ -191,7 +220,7 @@ export const bossList = [
     ID: 2524,
     name: {
       en: "Assault of the Zaqali",
-      cn: "扎卡利突袭",
+      ch: "扎卡利突袭",
       de: "Angriff der Zaqali",
       fr: "Assaut des Zaqalis",
       ru: "Нападение закали",
@@ -204,7 +233,7 @@ export const bossList = [
     ID: 2525,
     name: {
       en: "Rashok, the Elder",
-      cn: "莱修克，长老",
+      ch: "莱修克，长老",
       de: "Ältester Rashok",
       fr: "Rashok, l’Ancien",
       ru: "Рашок Древний",
@@ -217,7 +246,7 @@ export const bossList = [
     ID: 2532,
     name: {
       en: "The Vigilant Steward, Zskarn",
-      cn: "警戒管事兹斯卡恩",
+      ch: "警戒管事兹斯卡恩",
       de: "Der aufmerksame Verwalter, Zskarn",
       fr: "Zskarn, l’Intendant vigilant",
       ru: "Бдительный распорядитель Шкарн",
@@ -230,7 +259,7 @@ export const bossList = [
     ID: 2527,
     name: {
       en: "Magmorax",
-      cn: "玛格莫莱克斯",
+      ch: "玛格莫莱克斯",
       de: "Magmorax",
       fr: "Magmorax",
       ru: "Магморакс",
@@ -243,7 +272,7 @@ export const bossList = [
     ID: 2523,
     name: {
       en: "Echo of Neltharion",
-      cn: "奈萨里奥的回响",
+      ch: "奈萨里奥的回响",
       de: "Echo von Neltharion",
       fr: "Écho de Neltharion",
       ru: "Эхо Нелтариона",
@@ -256,7 +285,7 @@ export const bossList = [
     ID: 2520,
     name: {
       en: "Scalecommander Sarkareth",
-      cn: "鳞长萨卡雷斯",
+      ch: "鳞长萨卡雷斯",
       de: "Schuppenkommandant Sarkareth",
       fr: "Squammandant Sarkareth",
       ru: "Дракомандир Саркарет",
@@ -270,7 +299,7 @@ export const bossList = [
     ID: 2531,
     name: {
       en: "The Zaqali Elders",
-      cn: "扎卡利长老",
+      ch: "扎卡利长老",
       de: "Die Ältesten der Zaqali",
       fr: "Les Anciens zaqalis",
       ru: "Старейшины закали",
@@ -281,10 +310,17 @@ export const bossList = [
 
 ];
 
-export const getBossName = (encounterID, lang) => {
+export const getBossName = (encounterID: number, lang: keyof Boss['name']): string | null => {
   const boss = bossList.find((boss) => boss.DungeonEncounterID === encounterID);
   if (boss) {
     return boss.name[lang];
   }
   return null;
+};
+
+export const getTranslatedRaidName = (raid: number, lang: string) => {
+  const raidName = raidDB.filter((obj: any) => {
+    return obj.raidID === raid;
+  })[0]["name"][lang];
+  return raidName;
 };

@@ -15,10 +15,10 @@ interface Boss {
 }
 
 interface Instance {
-  name?: Record<string, string>;
-  bossOrder?: number[];
-  bossOrderMythicPlus?: number[];
-  bosses?: Record<number, Boss>;
+  name: Record<string, string>;
+  bossOrder: number[];
+  bossOrderMythicPlus: number[];
+  bosses: Record<number, Boss>;
   [key: string]: any; // This allows for additional properties
 }
 
@@ -54,6 +54,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1114, // Kel'Thuzad
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1107: {
         name: {
@@ -214,6 +215,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1094, // Malygos
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1094: {
         name: {
@@ -261,6 +263,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1130, // Algalon the Observer
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1132: {
         name: {
@@ -415,6 +418,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1129, // Toravon the Ice Watcher
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1126: {
         name: {
@@ -476,6 +480,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1090, // Sartharion
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1090: {
         name: {
@@ -510,6 +515,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1084, // Onyxia
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1084: {
         name: {
@@ -548,6 +554,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1085, // Anub'arak
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1088: {
         name: {
@@ -618,6 +625,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1150, // Halion
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1150: {
         name: {
@@ -663,6 +671,7 @@ export const encounterDB: Record<number | string, Instance> = {
       1106, // The Lich King
       999,
     ],
+    bossOrderMythicPlus: [],
     bosses: {
       1101: {
         name: {
@@ -786,7 +795,26 @@ export const encounterDB: Record<number | string, Instance> = {
 
   /* ------------------------------------------ Dungeons ------------------------------------------ */
   123: {
+    name: {
+      en: "Dungeons",
+      fr: "Dungeons",
+      de: "Dungeons",
+      ru: "Dungeons",
+      ch: "Dungeons",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [271, 272, 279, 273, 280, 274, 275, 276, 278, 281, 282, 283, 284, 285, 286],
+    bossOrderMythicPlus: [],
     271: {
       name: {
         en: "Ahn'kahet: The Old Kingdom",
@@ -938,6 +966,7 @@ export const encounterDB: Record<number | string, Instance> = {
       ch: "",
     },
     bossOrder: [2393, 2429, 2422, 2418, 2428, 2420, 2426, 2394, 2425, 2424, 999],
+    bossOrderMythicPlus: [],
     bosses: {
       2393: {
         name: {
@@ -1043,7 +1072,26 @@ export const encounterDB: Record<number | string, Instance> = {
 
   /* ---------------------------------------- World Bosses ---------------------------------------- */
   1205: {
+    name: {
+      en: "World Bosses",
+      fr: "World Bosses",
+      de: "World Bosses",
+      ru: "World Bosses",
+      ch: "World Bosses",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [2515, 2506, 2517, 2518, 2531],
+    bossOrderMythicPlus: [],
     2515: {
       name: {
         en: "Strunraan, The Sky's Misery",
@@ -1101,6 +1149,7 @@ export const encounterDB: Record<number | string, Instance> = {
       ch: "",
     },
     bossOrder: [2435, 2442, 2439, 2444, 2445, 2443, 2446, 2447, 2440, 2441, 998],
+    bossOrderMythicPlus: [],
     bosses: {
       2435: {
         name: {
@@ -1213,6 +1262,7 @@ export const encounterDB: Record<number | string, Instance> = {
       ch: "",
     },
     bossOrder: [2458, 2465, 2470, 2460, 2459, 2461, 2463, 2469, 2457, 2467, 2464, 999],
+    bossOrderMythicPlus: [],
     bosses: {
       2458: {
         name: {
@@ -1326,6 +1376,24 @@ export const encounterDB: Record<number | string, Instance> = {
   },
   /* ------------------------------------------ Dungeons ------------------------------------------ */
   "-10000": {
+    name: {
+      en: "Dungeons",
+      fr: "Dungeons",
+      de: "Dungeons",
+      ru: "Dungeons",
+      ch: "Dungeons",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [
       // 1182, // "Necrotic Wake"
       // 1183, // "Plaguefall"
@@ -1348,6 +1416,7 @@ export const encounterDB: Record<number | string, Instance> = {
       536, // Grimrail Depot
       558, // Iron Docks
     ],
+    bossOrderMythicPlus: [],
     1182: {
       name: {
         en: "Necrotic Wake",
@@ -1504,7 +1573,26 @@ export const encounterDB: Record<number | string, Instance> = {
   },
   /* ---------------------------------- Tazavesh, The Vieled City --------------------------------- */
   1194: {
+    name: {
+      en: "Tazavesh, The Vieled City",
+      fr: "Tazavesh, The Vieled City",
+      de: "Tazavesh, The Vieled City",
+      ru: "Tazavesh, The Vieled City",
+      ch: "Tazavesh, The Vieled City",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [2437, 2454, 2436, 2452, 2451, 2448, 2449, 2455],
+    bossOrderMythicPlus: [],
     2437: {
       name: {
         en: "Zo'phex the Sentinel",
@@ -1580,10 +1668,50 @@ export const encounterDB: Record<number | string, Instance> = {
   },
 
   /* --------------------------------------------- PVP -------------------------------------------- */
-  2: [-30, -31],
+  2: {
+    name: {
+      en: "PVP",
+      fr: "PVP",
+      de: "PVP",
+      ru: "PVP",
+      ch: "PVP",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
+    bossOrder: [-30, -31],
+    bossOrderMythicPlus: [],
+  },
   /* ------------------------------------- Legion Timewalking ------------------------------------- */
   3: {
+    name: {
+      en: "Legion Timewalking",
+      fr: "Legion Timewalking",
+      de: "Legion Timewalking",
+      ru: "Legion Timewalking",
+      ch: "Legion Timewalking",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [707, 716, 740, 762, 767, 800],
+    bossOrderMythicPlus: [],
     707: {
       name: {
         en: "Vault of the Wardens",
@@ -1655,6 +1783,7 @@ export const encounterDB: Record<number | string, Instance> = {
       ch: "化身巨龙牢窟",
     },
     bossOrder: [2480, 2500, 2486, 2482, 2502, 2491, 2493, 2499, 999],
+    bossOrderMythicPlus: [],
     bosses: {
       2480: {
         name: {
@@ -1750,6 +1879,7 @@ export const encounterDB: Record<number | string, Instance> = {
     },
     //bossOrder: [2688, 2687, 2693, 2682, 2680, 2689, 2683, 2684, 2685, 999],
     bossOrder: [2522, 2529, 2530, 2524, 2525, 2532, 2527, 2523, 2520, 999],
+    bossOrderMythicPlus: [],
     bosses: {
       2525: {
         name: {
@@ -1850,6 +1980,24 @@ export const encounterDB: Record<number | string, Instance> = {
   /* ---------------------------------------------------------------------------------------------- */
   // temp key until DF
   "-1": {
+    name: {
+      en: "Dungeons",
+      fr: "Dungeons",
+      de: "Dungeons",
+      ru: "Dungeons",
+      ch: "Dungeons",
+    },
+    bosses: {
+      1: {
+        name: {
+          en: "",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      }
+    },
     bossOrder: [
       1196, // Brackenhide Hollow
       1197, // Uldaman: Legacy of Tyr
@@ -2028,6 +2176,87 @@ export const encounterDB: Record<number | string, Instance> = {
 
   // Dawn of the Infinite
   1209: {
+    name: {
+      en: "Dawn of the Infinite",
+      fr: "Dawn of the Infinite",
+      ru: "Dawn of the Infinite",
+      de: "Dawn of the Infinite",
+      ch: "Dawn of the Infinite",
+    },
+    bosses: {
+      2666: {
+        name: {
+          en: "Chronikar",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2670: {
+        name: {
+          en: "Tyr, the Infinite Keeper",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2667: {
+        name: {
+          en: "Manifested Timeways",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2672: {
+        name: {
+          en: "Time-Lost Battlefield",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2668: {
+        name: {
+          en: "Blight of Galakrond",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2671: {
+        name: {
+          en: "Morchie",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2669: {
+        name: {
+          en: "Iridikron the Stonescaled",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+      2673: {
+        name: {
+          en: "Chrono-Lord Deios",
+          fr: "",
+          de: "",
+          ru: "",
+          ch: "",
+        },
+      },
+    },
     // mapId 2579
     bossOrder: [
       2666, // Chronikar
@@ -2039,77 +2268,6 @@ export const encounterDB: Record<number | string, Instance> = {
       2669, // Iridikron the Stonescaled
       2673, // Chrono-Lord Deios
     ],
-    2666: {
-      name: {
-        en: "Chronikar",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2670: {
-      name: {
-        en: "Tyr, the Infinite Keeper",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2667: {
-      name: {
-        en: "Manifested Timeways",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2672: {
-      name: {
-        en: "Time-Lost Battlefield",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2668: {
-      name: {
-        en: "Blight of Galakrond",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2671: {
-      name: {
-        en: "Morchie",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2669: {
-      name: {
-        en: "Iridikron the Stonescaled",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
-    2673: {
-      name: {
-        en: "Chrono-Lord Deios",
-        fr: "",
-        de: "",
-        ru: "",
-        ch: "",
-      },
-    },
+    bossOrderMythicPlus: [],
   },
 };
