@@ -67,27 +67,31 @@ const apl = [
     {s: "Blessing of Seasons", c: {talent: "blessingOfSeasons"}},
     {s: "Aura Mastery", c: {talent: "mercifulAuras"}},
     {s: "Avenging Wrath"},
+    {s: "Light's Hammer"}, 
     {s: "Judgment", c: {type: "buff", buffName: "Awakening - Final"}}, 
     {s: "Tyr's Deliverance", c: {talent: "tyrsDeliverance"}}, 
     //{s: "Daybreak", c: {type: "buff", buffName: "Beacon of Virtue", talent: "daybreak"}}, 
     {s: "Daybreak", c: {talent: "daybreak"}}, 
+    {s: "Divine Toll", c: {talentNot: "Rising Sunlight"}}, 
     {s: "Divine Toll", c: {type: "buff", buffName: "Rising Sunlight"}}, 
-    {s: "Light's Hammer"}, 
     {s: "Barrier of Faith", c: {talent: "barrierOfFaith"}},
     //{s: "Light of Dawn", c: {type: "CooldownDown", cooldownName: "Beacon of Virtue", timer: 4}}, 
     {s: "Light of Dawn", c: {type:"buff", buffName: "Blessing of Dawn", stacks: 2}},
     {s: "Light of the Martyr", c: {type: "buff", buffName: "Maraads Dying Breath"}}, 
+    {s: "Light of Dawn", c: {holyPower: 4, talent:"awakening"}}, // Don't overcap hopo with Awakening
     {s: "Light of Dawn", c: {holyPower: 5, talent:"awakening"}}, // Don't overcap hopo with Awakening
+    {s: "Light of Dawn"}, // Testing using LoD first
+    {s: "Holy Light", c: {type: "buff", buffName: "Infusion of Light", talent: "awakening"}}, // Use Holy Light for Awakening uptime
+    {s: "Judgment", c: {type: "buff", buffName: "Infusion of Light", talent:"judgementInfusionUseIfUp"}},
     {s: "Flash of Light", c: {type: "buff", buffName: "Infusion of Light"}}, 
     {s: "Holy Shock"}, 
     //{s: "Holy Shock", c: {type: "CooldownDown", cooldownName: "Beacon of Virtue", timer: 5}}, // Some kind of hold for Virtue
-    {s: "Judgment", c: {type: "buff", buffName: "Infusion of Light"}},
-    //{s: "Holy Light", c: {type: "buff", buffName: "Infusion of Light"}}, // Infusion spell doesn't REALLY matter, the benefit here is resplentant light
     {s: "Holy Light", c: {type: "buff", buffName: "Beacon of Virtue"}}, // Not sure if we can do "buff duration" as a condition element?
     {s: "Hammer of Wrath", c: {type: "buff", buffName: "Veneration"}},
     {s: "Light of Dawn"}, 
+    {s: "Crusader Strike", c: {talent: "holyInfusion"}},
     {s: "Hammer of Wrath", c: {type: "buff", buffName: "Avenging Wrath"}},
-    {s: "Judgment"}, 
+    {s: "Judgment", c: {talentNot: "judgementInfusionHold"}}, 
     {s: "Consecration"}, 
     {s: "Holy Light"},
     {s: "Crusader Strike"},
@@ -259,7 +263,7 @@ const getDamMult = (state, buffs, activeAtones, t, spellName, talents) => {
 
     mult *= (buffs.filter(function (buff) {return buff.name === "Avenging Wrath"}).length > 0 ? 1.15 : 1); 
     mult *= ((["Crusader Strike", "Judgment"].includes(spellName) && buffs.filter(function (buff) {return buff.name === "Avenging Crusader"}).length > 0) ? 1.3 : 1); 
-    mult *= ((["Crusader Strike", "Holy Shock"].includes(spellName) && state.talents.reclamation.points == 1) ? 1 + (1 - PALADINCONSTANTS.reclamation.avgDamHealth) * PALADINCONSTANTS.reclamation.throughputIncrease : 1);
+    mult *= (((["Crusader Strike"].includes(spellName) || spellName.includes("Holy Shock")) && state.talents.reclamation.points == 1) ? 1 + (1 - PALADINCONSTANTS.reclamation.avgDamHealth) * PALADINCONSTANTS.reclamation.throughputIncrease : 1);
     
     if ((spellName === "Shield of the Righteous") && checkBuffActive(state.activeBuffs, "Blessing of Dawn")) {
         mult *= (1 + getBuffStacks(state.activeBuffs, "Blessing of Dawn") * (0.2 + (getTalentPoints(state, "sealOfOrder") || getTalentPoints(state, "fadingLight") ? 0.1 : 0)));
@@ -376,25 +380,13 @@ export const runHeal = (state, spell, spellName, compile = true) => {
 
     // Trigger Glimmer of Light
     if (spellName === "Holy Shock") triggerGlimmerOfLight(state, "Holy Shock");
+    if (spellName === "Holy Shock (Rising Sunlight)") triggerGlimmerOfLight(state, "Holy Shock (Rising Sunlight)");
     // if (spellName === "Holy Shock (Divine Toll)") triggerGlimmerOfLight(state, "Divine Toll"); This only happens once on cast
 
     // Handle Overflowing Light
     if (spellName.includes("Glimmer of Light")) {
         const glimmerOfLightAbsorb = healingVal * spell.expectedOverheal * state.talents.overflowingLight.points * 0.5 * 0.95; 
         if (compile) state.healingDone["Overflowing Light (Glimmer)"] = (state.healingDone["Overflowing Light (Glimmer)"] || 0) + glimmerOfLightAbsorb;
-    
-        // Puts the name of the triggering spell in brackets, but it's probably fine to just use Glimmer
-        /*
-        var shortName = spellName;
-        if (spellName != "Glimmer of Light"){
-            shortName = shortName.replace( /(^.*\(|\).*$)/g, '' );;
-        }
-        else{
-            shortName = "Glimmer";
-        }
-        
-        if (compile) state.healingDone["Overflowing Light (" + shortName + ")"] = (state.healingDone["Overflowing Light (" + shortName + ")"] || 0) + glimmerOfLightAbsorb;
-        */
     }
 
     // Fading Light
@@ -452,7 +444,11 @@ const canCastSpell = (state, spellDB, spellName, conditions = {}) => {
     if (conditions !== {}) {
         if (conditions.talent && state.talents[conditions.talent].points === 0) aplReq = false;
         if (state.holyPower >= conditions.holyPower) aplReq = false;
-
+        if (conditions.talentNot){
+            if (typeof state.talents[conditions.talentNot] == "undefined") aplReq = false;
+            else if (state.talents[conditions.talentNot].points > 0) aplReq = false;
+        } 
+        
         if (aplReq) {
             if (conditions.type === "buff") {
                 aplReq = checkBuffActive(state.activeBuffs, conditions.buffName);
@@ -663,10 +659,17 @@ export const runSpell = (fullSpell, state, spellName, paladinSpells, bonusSpell 
                             if ((buff.stacks + 1) >= buff.maxStacks) {
                                 // At Blessing of Dawn cap. Remove buff, then add new buff.
                                 state.activeBuffs = removeBuff(state.activeBuffs, "Blessing of Dawn Stacker")
-                                const dawnFinal = {name: "Blessing of Dawn", expiration: (state.t  + 99), buffType: "special", 
-                                    value: 1.2, stacks: 1, canStack: true};
-                                state.activeBuffs.push(dawnFinal);
-                                addReport(state, `Adding Blessing of Dawn`)
+                                if (checkBuffActive(state.activeBuffs, "Blessing of Dawn")) {
+                                    const dawnBuff = state.activeBuffs.filter(function (buff) {return buff.name === "Blessing of Dawn"})[0]
+                                    if ((dawnBuff.stacks) < dawnBuff.maxStacks) dawnBuff.stacks += 1;
+                                    addReport(state, `Adding Blessing of Dawn Stack`)
+                                }
+                                else {
+                                    const dawnFinal = {name: "Blessing of Dawn", expiration: (state.t  + 99), buffType: "special", 
+                                        value: 1.2, stacks: 1, maxStacks: 2, canStack: true};
+                                    state.activeBuffs.push(dawnFinal);
+                                    addReport(state, `Adding Blessing of Dawn`)
+                                }
                             }
                             else {
                                 // Not at Blessing of Dawn cap yet. Increase buff stack by 1.

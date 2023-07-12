@@ -75,7 +75,7 @@ export const PALADINSPELLDB = {
         type: "heal",
         castTime: 1.5,
         cost: 3.6,
-        coeff: 2.727, // Test this since it's an aura mess.
+        coeff: 3.03, //2.727, // Test this since it's an aura mess.
         expectedOverheal: 0.14,
         statMods: {'crit': 0, critEffect: 0},
         secondaries: ['crit', 'vers', 'mastery']
@@ -95,7 +95,7 @@ export const PALADINSPELLDB = {
         type: "heal",
         castTime: 2.5,
         cost: 2.4,
-        coeff: 3.25, // 
+        coeff: 3.64, // 2.6 * 1.4,
         expectedOverheal: 0.21,
         statMods: {'crit': 0, critEffect: 0},
         secondaries: ['crit', 'vers', 'mastery']
@@ -619,7 +619,7 @@ export const baseTalents = {
     }},
 
     // Seal of Order - Dawn is 30% instead of 20%. Dusk causes HoPo generators to cool down 10% faster.
-    sealOfOrder: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
+    sealOfOrder: {points: 1, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
         const cooldownMultiplier = 0.9; // Dusk uptime is basically 100%.
         spellDB['Holy Shock'][0].cooldown *= cooldownMultiplier;
         spellDB['Judgment'][0].cooldown *= cooldownMultiplier;
@@ -631,7 +631,7 @@ export const baseTalents = {
     }}, 
 
     // Fading Light - 
-    fadingLight: {points: 1, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
+    fadingLight: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
 
         // Fading Light also increases the power of Dawn by 10%. 
     }}, 
@@ -671,7 +671,7 @@ export const baseTalents = {
 
     // Resplendent Light - Holy Light splashes to 5 targets for 8% each.
     // This ISN'T AOE reduced by Beacon, and scales off of raw healing, not effective
-    resplendentLight: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
+    resplendentLight: {points: 1, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) {
         spellDB['Holy Light'].push({
             type: "heal",
             coeff: spellDB['Holy Light'][0].coeff * 0.08,
@@ -778,7 +778,7 @@ export const baseTalents = {
     // Power of the Silver Hand - HL and FoL have a chance to give you a buff, increasing the healing of the next HS you cast by 10% of the damage / healing you do in the next 10s.
 
     // Spending Holy Power gives you +1% haste for 12s. Stacks up to 5 times.
-    relentlessInquisitor: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points, stats) {
+    relentlessInquisitor: {points: 1, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points, stats) {
         // We'll add this via a buff because it's a multiplicative stat gain and needs to be applied post-DR.
         const buff = {
             name: "Relentless Inquisitor",
@@ -920,7 +920,7 @@ export const baseTalents = {
     }},
 
     // Inflorescence of the Sunwell
-    inflorescenceOfTheSunwell: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) { 
+    inflorescenceOfTheSunwell: {points: 1, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) { 
         spellDB['Holy Shock'][1].stacks = 2;
         spellDB['Holy Shock'][1].maxStacks = 2;
 
@@ -964,7 +964,7 @@ export const baseTalents = {
         const buff = {
             type: "buff",
             buffType: "heal",
-            coeff: 0.21, 
+            coeff: 0.21 * (1 - .143), 
             tickRate: 2 * getHaste(state.currentStats), // Not Hasted
             targets: 3,
             buffDuration: 999,
@@ -978,12 +978,21 @@ export const baseTalents = {
             type: "buff",
             name: "Merciful Auras (Active)",
             buffType: "heal",
-            coeff: 0.21 * 1.5,
+            coeff: 0.21 * 1.5 * (1 - .143),
             buffDuration: 8,
             expectedOverheal: 0.30,
             targets: 20,
             tickRate: 2 * getHaste(state.currentStats), // Not Hasted
             secondaries: ['crit', 'versatility']
         })
-    }}
+    }},
+
+    // Meta
+    judgementInfusionUseIfUp: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) { 
+        // Meta talent, doesn't do anything except impact APL
+    }},
+
+    judgementInfusionHold: {points: 0, maxPoints: 1, icon: "", id: 0, select: true, tier: 4, runFunc: function (state, spellDB, points) { 
+        // Meta talent, doesn't do anything except impact APL
+    }},
 }

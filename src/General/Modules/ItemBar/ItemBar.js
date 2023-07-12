@@ -86,6 +86,7 @@ export const createItem = (itemID, itemName, itemLevel, itemSocket, itemTertiary
 
 export default function ItemBar(props) {
   const contentType = useSelector((state) => state.contentType);
+  const playerSettings = useSelector((state) => state.playerSettings);
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   const classes = useStyles();
@@ -435,7 +436,7 @@ export default function ItemBar(props) {
         /*                              Tertiary Dropdown                             */
         /* -------------------------------------------------------------------------- */}
 
-        {availableFields.tertiary ? (
+        {availableFields.tertiaries ? (
           <Grid item>
             <FormControl
               className={classes.formControl}
